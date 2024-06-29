@@ -1,11 +1,12 @@
 //SPDX-License-Identifier: MIT
 
- pragma solidity ^0.8.18;
+pragma solidity ^0.8.18;
 
 //import {VRFCoordinatorV2Interface} from "@chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
+ 
  /**
   * @title A Sample Raffle Contract
   * @author Darío E. Desalvo
@@ -13,7 +14,7 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/inter
   * @dev Implements Chainlink VRFv2
   */
 
- contract Raffle is VRFConsumerBaseV2Plus {
+contract Raffle is VRFConsumerBaseV2Plus {
     
    error Raffle__NotEnoughEthSent();
    error Raffle__TransferFailed();
@@ -28,9 +29,6 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/inter
         bool exists; // whether a requestId exists
         uint256[] randomWords;
     }
-
-    mapping(uint256 => RequestStatus)
-        public s_requests; /* requestId --> requestStatus */
 
    uint16 private constant REQUEST_CONFIRMATIONS = 3;
    uint32 private constant NUM_WORDS = 1;
@@ -93,11 +91,6 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/inter
 
       uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
 
-      s_requests[requestId] = RequestStatus({
-         randomWords: new uint256[](0),
-         exists: true,
-         fulfilled: false
-      });
        
    }
 
