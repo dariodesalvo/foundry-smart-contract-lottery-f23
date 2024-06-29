@@ -16,6 +16,7 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/inter
  contract Raffle is VRFConsumerBaseV2Plus {
     
    error Raffle__NotEnoughEthSent();
+   error Raffle__TransferFailed();
    
    event RequestFulfilled(uint256 requestId, uint256[] randomWords);
 
@@ -33,13 +34,9 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/inter
 
    uint16 private constant REQUEST_CONFIRMATIONS = 3;
    uint32 private constant NUM_WORDS = 1;
-   // For a list of available gas lanes on each network,
-   // see https://docs.chain.link/docs/vrf/v2-5/supported-networks
-   bytes32 private constant KEY_HASH =
-        0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae;
    bool private constant ENABLE_NATIVE_PAYMENT = true;
 
-
+   bytes32 private immutable i_keyHash;
    uint256 private immutable i_entranceFee;
    // @dev duration of the lottery in seconds
    uint256 private immutable i_interval;
@@ -48,6 +45,7 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/inter
    uint32 private immutable i_callbackGasLimit;
    address payable[] private s_players;
    uint256 private s_lastTimeStamp;
+   address private s_recentWinner;
 
    /** Events */
    event RaffleEntered(address indexed player);
@@ -66,6 +64,9 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/inter
       i_gasLane = gasLane;
       i_subscriptionId = subscriptionId;
       i_callbackGasLimit = callbackGasLimit;
+      // For a list of available gas lanes on each network,
+      // see https://docs.chain.link/docs/vrf/v2-5/supported-networks
+      i_keyHash = 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae;
    }
 
    function enterRaffle()  external payable{
@@ -78,19 +79,19 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/inter
 
    function pickWinner() external {
       if((block.timestamp - s_lastTimeStamp) < i_interval){
-         revert();
+         revert Raffle__TransferFailed();
       }
    
-      uint256 requestId = s_vrfCoordinator.requestRandomWords(
-         VRFV2PlusClient.RandomWordsRequest({
-            keyHash: KEY_HASH,
+      VRFV2PlusClient.RandomWordsRequest memory request = VRFV2PlusClient.RandomWordsRequest({
+            keyHash: i_keyHash,
             subId: i_subscriptionId,
             requestConfirmations: REQUEST_CONFIRMATIONS,
             callbackGasLimit: i_callbackGasLimit,
             numWords: NUM_WORDS,
             extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({nativePayment: ENABLE_NATIVE_PAYMENT}))
-         })
-      );
+         });
+
+      uint256 requestId = s_vrfCoordinator.requestRandomWords(request);
 
       s_requests[requestId] = RequestStatus({
          randomWords: new uint256[](0),
@@ -101,13 +102,16 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/inter
    }
 
    function fulfillRandomWords(
-      uint256 _requestId,
-      uint256[] calldata _randomWords
+      uint256 requestId,
+      uint256[] calldata randomWords
     ) internal override {
-      require(s_requests[_requestId].exists, "request not found");
-      s_requests[_requestId].fulfilled = true;
-      s_requests[_requestId].randomWords = _randomWords;
-      emit RequestFulfilled(_requestId, _randomWords);
+      uint256 indexOfWinner = randomWords[0] % s_players.length ;
+      address payable recentWinner = s_players[indexOfWinner];
+      s_recentWinner = recentWinner;
+      (bool success, ) = recentWinner.call{value: address(this).balance}("");
+      if (!success){
+         revert();
+      }
     } 
 
     /** Getter Function */
