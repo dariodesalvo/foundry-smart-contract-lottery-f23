@@ -14,5 +14,14 @@ This code is to create a proveably random smart contract lottery.
     1. Chainlink VRF -> Randomness
     2. Chainlink Automation -> Time based trigger
 
+## Tests!
+
+1. Write deploy scripts
+    1. Note, this will not work on zkZync
+2. Write tests
+    1. Local chain
+    2. Forked tesnet
+    3. Forked mainnet
+
 ## Credits 
 https://updraft.cyfrin.io/courses/foundry/smart-contract-lottery

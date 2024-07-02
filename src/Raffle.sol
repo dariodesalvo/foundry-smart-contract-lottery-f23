@@ -64,8 +64,10 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
       uint256 interval,
       bytes32 gasLane,
       uint256 subscriptionId,
-      uint32 callbackGasLimit
-   )VRFConsumerBaseV2Plus(0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B){
+      uint32 callbackGasLimit,
+      address vrfCoordinatorV2_5,
+      bytes32 keyHash
+   )VRFConsumerBaseV2Plus(vrfCoordinatorV2_5){
    
       //i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
       i_entranceFee = entranceFee;
@@ -73,9 +75,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
       i_gasLane = gasLane;
       i_subscriptionId = subscriptionId;
       i_callbackGasLimit = callbackGasLimit;
-      // For a list of available gas lanes on each network,
-      // see https://docs.chain.link/docs/vrf/v2-5/supported-networks
-      i_keyHash = 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae;
+      i_keyHash = keyHash;
       s_raffleState = RaffleState.OPEN;
    }
 
@@ -166,5 +166,9 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
 
    function getEntranceFee() external view returns(uint256){
       return i_entranceFee;
+   }
+
+   function getRaffleState() external view returns(RaffleState){
+      return s_raffleState;
    }
  }
