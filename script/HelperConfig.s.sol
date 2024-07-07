@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 
 import {Script} from "forge-std/Script.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
+import {LinkToken} from "test/mocks/LinkToken.sol";
 
 abstract contract CodeConstants {
 
@@ -32,6 +33,8 @@ contract HelperConfig is Script, CodeConstants {
         uint256 subscriptionId;
         uint32 callbackGasLimit;  
         bytes32 keyHash; 
+        address link;
+
     }
 
     NetworkConfig public localNetworkConfig;
@@ -65,7 +68,8 @@ contract HelperConfig is Script, CodeConstants {
             subscriptionId: 0, // If left as 0, our scripts will create one!   
             // For a list of available gas lanes on each network,
             // see https://docs.chain.link/docs/vrf/v2-5/supported-networks   
-            keyHash: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae                    
+            keyHash: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
+            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789               
         });
     }
 
@@ -78,6 +82,7 @@ contract HelperConfig is Script, CodeConstants {
         // Deploy mocks and such
         vm.startBroadcast();
         VRFCoordinatorV2_5Mock vrfCoordinatorMock = new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UINT_LINK);
+        LinkToken linkToken = new LinkToken();
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({
@@ -87,7 +92,8 @@ contract HelperConfig is Script, CodeConstants {
             gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
             subscriptionId: 0, 
             callbackGasLimit: 5000,
-            keyHash: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae
+            keyHash: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
+            link: address(linkToken)
         });
 
         return localNetworkConfig;
