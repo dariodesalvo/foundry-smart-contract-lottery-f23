@@ -13,7 +13,6 @@ contract RaffleTest is Test {
 
     
     uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
-    uint256 public constant LINK_BALANCE = 100 ether;
 
     Raffle public raffle;
     HelperConfig public helperConfig;
