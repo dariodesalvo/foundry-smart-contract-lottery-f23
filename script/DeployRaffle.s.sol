@@ -33,7 +33,7 @@ contract DeployRaffle is Script {
             config.subscriptionId,
             config.callbackGasLimit,
             config.vrfCoordinatorV2_5,
-            config. keyHash
+            config.keyHash
         );
         vm.stopBroadcast();
 

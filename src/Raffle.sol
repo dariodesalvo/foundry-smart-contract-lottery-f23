@@ -6,7 +6,7 @@ pragma solidity ^0.8.18;
 import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/interfaces/AutomationCompatibleInterface.sol";
- 
+
  /**
   * @title A Sample Raffle Contract
   * @author Darío E. Desalvo
@@ -41,7 +41,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
 
    uint16 private constant REQUEST_CONFIRMATIONS = 3;
    uint32 private constant NUM_WORDS = 1;
-   bool private constant ENABLE_NATIVE_PAYMENT = true;
+   bool private constant ENABLE_NATIVE_PAYMENT = false;
 
    bytes32 private immutable i_keyHash;
    uint256 private immutable i_entranceFee;
