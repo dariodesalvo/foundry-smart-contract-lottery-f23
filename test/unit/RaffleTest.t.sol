@@ -5,11 +5,11 @@ pragma solidity ^0.8.18;
 import {Test} from "forge-std/Test.sol";
 import {DeployRaffle} from "script/DeployRaffle.s.sol";
 import {Raffle} from "src/Raffle.sol";
-import {HelperConfig} from "script/HelperConfig.s.sol";
+import {HelperConfig, CodeConstants} from "script/HelperConfig.s.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 
-contract RaffleTest is Test {
+contract RaffleTest is Test, CodeConstants {
 
     
     uint256 public constant STARTING_PLAYER_BALANCE = 10 ether;
@@ -122,9 +122,16 @@ contract RaffleTest is Test {
 
     }
 
+    modifier skipFork() {
+        if (block.chainid != LOCAL_CHAIN_ID){
+            return;
+        }
+        _;
+    }
+
     // challenge 
 
-    function testCheckUpKeepReturnsFalseIfEnoughtTimeHasPassed() public {
+    function testCheckUpKeepReturnsFalseIfEnoughtTimeHasPassed() public skipFork {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
         
@@ -155,7 +162,7 @@ contract RaffleTest is Test {
    
     }
 
-    function testPerformUpkeepRevertIfCheckUpKeepIsFalse() public {
+    function testPerformUpkeepRevertIfCheckUpKeepIsFalse() public skipFork {
 
         //Arrange  
         uint256 currentBalance = 0;
@@ -193,7 +200,7 @@ contract RaffleTest is Test {
 
     /* FullfillRandomWords */
 
-    function testFullfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public raffleEntered{
+    function testFullfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public raffleEntered skipFork {
 
         //Arrange
 
@@ -203,7 +210,7 @@ contract RaffleTest is Test {
 
     }
 
-    function testFullfillRandomWordsPicksAWinnerResetsAndSendsMoney() public raffleEntered {
+    function testFullfillRandomWordsPicksAWinnerResetsAndSendsMoney() public raffleEntered skipFork {
 
         //Arrange
         uint256 additionalEntrants = 3; // total 4 players
