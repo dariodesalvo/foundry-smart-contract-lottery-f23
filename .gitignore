@@ -17,3 +17,6 @@ broadcast/
 lib/
 
 coverage.txt
+
+.DS_Store
+zkout/
